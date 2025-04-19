@@ -53,4 +53,17 @@ public class ProductDao {
         return list;
     }
 
+    public Product getProductById(int productId) {
+        Session session = this.factory.openSession();
+        try {
+            Product product = session.get(Product.class, productId);
+            return product;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        } finally {
+            session.close();
+        }
+    }
+
 }

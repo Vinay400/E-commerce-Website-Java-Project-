@@ -1,11 +1,15 @@
 com\learn\mycart\entities\User.class
 com\learn\mycart\entities\Product.class
+com\learn\mycart\entities\ShippingAddress.class
 com\learn\mycart\dao\CategoryDao.class
 com\learn\mycart\servlets\LoginServlet.class
 com\learn\mycart\servlets\ProductOperationServlet.class
 com\learn\mycart\dao\ProductDao.class
+com\learn\mycart\entities\OrderItem.class
+com\learn\mycart\servlets\OrderServlet.class
 com\learn\mycart\dao\OrderDao.class
 com\learn\mycart\entities\Order.class
+com\learn\mycart\servlets\CheckoutServlet.class
 com\learn\mycart\entities\Category.class
 com\learn\mycart\servlets\RegisterServlet.class
 com\learn\mycart\helper\Helper.class

@@ -47,6 +47,10 @@
         <servlet-name>ProductOperationServlet</servlet-name>
         <servlet-class>com.learn.mycart.servlets.ProductOperationServlet</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>CheckoutServlet</servlet-name>
+        <servlet-class>com.learn.mycart.servlets.CheckoutServlet</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>RegisterServlet</servlet-name>
         <url-pattern>/RegisterServlet</url-pattern>
@@ -62,6 +66,10 @@
     <servlet-mapping>
         <servlet-name>ProductOperationServlet</servlet-name>
         <url-pattern>/ProductOperationServlet</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>CheckoutServlet</servlet-name>
+        <url-pattern>/CheckoutServlet</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>

@@ -24,5 +24,7 @@
         <mapping class="com.learn.mycart.entities.User" />  
         <mapping class="com.learn.mycart.entities.Category" />  
         <mapping class="com.learn.mycart.entities.Product" />  
+        <mapping class="com.learn.mycart.entities.Order" />  
+        <mapping class="com.learn.mycart.entities.OrderItem" />  
     </session-factory>
 </hibernate-configuration>

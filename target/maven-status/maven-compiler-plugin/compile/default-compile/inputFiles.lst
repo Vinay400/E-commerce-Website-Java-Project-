@@ -1,8 +1,11 @@
 C:\Users\vinay\Downloads\Complete E-Commerce Project Source Code\mycart\src\main\java\com\learn\mycart\entities\Product.java
 C:\Users\vinay\Downloads\Complete E-Commerce Project Source Code\mycart\src\main\java\com\learn\mycart\entities\User.java
+C:\Users\vinay\Downloads\Complete E-Commerce Project Source Code\mycart\src\main\java\com\learn\mycart\servlets\CheckoutServlet.java
+C:\Users\vinay\Downloads\Complete E-Commerce Project Source Code\mycart\src\main\java\com\learn\mycart\entities\OrderItem.java
 C:\Users\vinay\Downloads\Complete E-Commerce Project Source Code\mycart\src\main\java\com\learn\mycart\helper\Helper.java
 C:\Users\vinay\Downloads\Complete E-Commerce Project Source Code\mycart\src\main\java\com\learn\mycart\dao\CategoryDao.java
 C:\Users\vinay\Downloads\Complete E-Commerce Project Source Code\mycart\src\main\java\com\learn\mycart\entities\Category.java
+C:\Users\vinay\Downloads\Complete E-Commerce Project Source Code\mycart\src\main\java\com\learn\mycart\entities\ShippingAddress.java
 C:\Users\vinay\Downloads\Complete E-Commerce Project Source Code\mycart\src\main\java\com\learn\mycart\dao\ProductDao.java
 C:\Users\vinay\Downloads\Complete E-Commerce Project Source Code\mycart\src\main\java\com\learn\mycart\servlets\RegisterServlet.java
 C:\Users\vinay\Downloads\Complete E-Commerce Project Source Code\mycart\src\main\java\com\learn\mycart\servlets\ProductOperationServlet.java
@@ -11,4 +14,5 @@ C:\Users\vinay\Downloads\Complete E-Commerce Project Source Code\mycart\src\main
 C:\Users\vinay\Downloads\Complete E-Commerce Project Source Code\mycart\src\main\java\com\learn\mycart\entities\Order.java
 C:\Users\vinay\Downloads\Complete E-Commerce Project Source Code\mycart\src\main\java\com\learn\mycart\dao\OrderDao.java
 C:\Users\vinay\Downloads\Complete E-Commerce Project Source Code\mycart\src\main\java\com\learn\mycart\servlets\LogoutServlet.java
+C:\Users\vinay\Downloads\Complete E-Commerce Project Source Code\mycart\src\main\java\com\learn\mycart\servlets\OrderServlet.java
 C:\Users\vinay\Downloads\Complete E-Commerce Project Source Code\mycart\src\main\java\com\learn\mycart\helper\FactoryProvider.java

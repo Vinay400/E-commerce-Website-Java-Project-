@@ -232,7 +232,7 @@
                                         <tr>
                                             <td>#ORD-<%= order.getOrderId() %></td>
                                             <td><%= dateFormat.format(order.getOrderDate()) %></td>
-                                            <td><%= order.getItemCount() %> items</td>
+                                            <td><%= order.getItems() != null && !order.getItems().isEmpty() ? order.getItems().split(",").length : 0 %> items</td>
                                             <td>$<%= String.format("%.2f", order.getTotalAmount()) %></td>
                                             <td>
                                                 <% 

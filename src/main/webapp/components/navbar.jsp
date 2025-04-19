@@ -1,8 +1,7 @@
-
 <%@page import="com.learn.mycart.entities.User"%>
 <%
     User user1 = (User) session.getAttribute("current-user");
-
+    String cartActive = page.toString().contains("cart.jsp") ? "active" : "";
 %>
 
 
@@ -38,8 +37,11 @@
             <ul class="navbar-nav ml-auto">
 
 
-                <li class="nav-item active">
-                    <a class="nav-link" href="#!" data-toggle="modal" data-target="#cart">  <i class="fa fa-cart-plus"  style="font-size: 20px;"></i> <span class="ml-0 cart-items">( 0 )</span>  </a>
+                <li class="nav-item <%= cartActive %>">
+                    <a class="nav-link" href="cart.jsp">
+                        <i class="fa fa-shopping-cart"></i> Cart
+                        <span class="badge badge-danger cart-items">0</span>
+                    </a>
                 </li>
 
 
@@ -84,3 +86,10 @@
 
     </div>
 </nav>
+
+<script>
+    // Update cart count when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+        updateCart();
+    });
+</script>

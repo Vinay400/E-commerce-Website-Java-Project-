@@ -1,6 +1,4 @@
-
 package com.learn.mycart.helper;
-
 
 public class Helper {
     public static String get10Words(String desc)
@@ -21,5 +19,17 @@ public class Helper {
             return (desc+"...");
         }
         
+    }
+    
+    public static String escapeJavaScript(String str) {
+        if (str == null) {
+            return "";
+        }
+        return str.replace("\\", "\\\\")
+                 .replace("'", "\\'")
+                 .replace("\"", "\\\"")
+                 .replace("\r", "\\r")
+                 .replace("\n", "\\n")
+                 .replace("\t", "\\t");
     }
 }
