@@ -8,9 +8,9 @@ public class OrderItem {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private int orderItemId;
     
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "order_id")
     private Order order;
     
@@ -34,13 +34,18 @@ public class OrderItem {
         this.price = price;
     }
     
+    public OrderItem(Order order, Product product, int quantity, double price) {
+        this(product, quantity, price);
+        this.order = order;
+    }
+    
     // Getters and Setters
-    public Long getId() {
-        return id;
+    public int getOrderItemId() {
+        return orderItemId;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setOrderItemId(int orderItemId) {
+        this.orderItemId = orderItemId;
     }
 
     public Order getOrder() {
@@ -76,7 +81,18 @@ public class OrderItem {
     }
     
     // Helper methods
-    public double getTotal() {
+    public double getSubtotal() {
         return price * quantity;
+    }
+
+    @Override
+    public String toString() {
+        return "OrderItem{" +
+                "orderItemId=" + orderItemId +
+                ", order=" + (order != null ? order.getOrderId() : "null") +
+                ", product=" + (product != null ? product.getpId() : "null") +
+                ", quantity=" + quantity +
+                ", price=" + price +
+                '}';
     }
 } 

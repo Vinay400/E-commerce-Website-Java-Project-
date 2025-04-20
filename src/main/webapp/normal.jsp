@@ -20,8 +20,6 @@
     double totalSpent = orderDao.getTotalSpentByUser(user.getUserId());
     int totalOrders = orderDao.getOrderCountByUser(user.getUserId());
     
-    // Get wishlist and cart items from localStorage using JavaScript
-    
     // Get recent orders
     List<Order> recentOrders = orderDao.getRecentOrdersByUser(user.getUserId(), 5); // Get last 5 orders
     SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
@@ -119,7 +117,7 @@
                             <a href="wishlist.jsp" class="nav-link">
                                 <i class="fas fa-heart me-2"></i> Wishlist
                             </a>
-                            <a href="#" class="nav-link">
+                            <a href="my-orders.jsp" class="nav-link">
                                 <i class="fas fa-box me-2"></i> My Orders
                             </a>
                             <a href="#" class="nav-link">
@@ -213,7 +211,7 @@
                     <div class="card mb-4">
                         <div class="card-header py-3 d-flex justify-content-between align-items-center">
                             <h6 class="m-0 font-weight-bold text-primary">Recent Orders</h6>
-                            <a href="#" class="btn btn-sm btn-primary">View All</a>
+                            <a href="orders.jsp" class="btn btn-sm btn-primary">View All Orders</a>
                         </div>
                         <div class="card-body">
                             <div class="table-responsive">
@@ -225,27 +223,42 @@
                                             <th>Items</th>
                                             <th>Total</th>
                                             <th>Status</th>
+                                            <th>Payment Method</th>
+                                            <th>Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <% for(Order order : recentOrders) { %>
-                                        <tr>
-                                            <td>#ORD-<%= order.getOrderId() %></td>
-                                            <td><%= dateFormat.format(order.getOrderDate()) %></td>
-                                            <td><%= order.getItems() != null && !order.getItems().isEmpty() ? order.getItems().split(",").length : 0 %> items</td>
-                                            <td>$<%= String.format("%.2f", order.getTotalAmount()) %></td>
-                                            <td>
-                                                <% 
-                                                String badgeClass = "bg-info";
-                                                if(order.getStatus().equalsIgnoreCase("delivered")) {
-                                                    badgeClass = "bg-success";
-                                                } else if(order.getStatus().equalsIgnoreCase("in transit")) {
-                                                    badgeClass = "bg-warning";
-                                                }
-                                                %>
-                                                <span class="badge <%= badgeClass %>"><%= order.getStatus() %></span>
-                                            </td>
-                                        </tr>
+                                        <% if (recentOrders != null && !recentOrders.isEmpty()) { %>
+                                            <% for(Order order : recentOrders) { %>
+                                                <tr>
+                                                    <td>#ORD-<%= order.getOrderId() %></td>
+                                                    <td><%= dateFormat.format(order.getOrderDate()) %></td>
+                                                    <td><%= order.getTotalItems() %> items</td>
+                                                    <td>$<%= String.format("%.2f", order.getTotalAmount()) %></td>
+                                                    <td>
+                                                        <% 
+                                                        String badgeClass = "bg-info";
+                                                        if(order.getOrderStatus().equalsIgnoreCase("DELIVERED")) {
+                                                            badgeClass = "bg-success";
+                                                        } else if(order.getOrderStatus().equalsIgnoreCase("IN_TRANSIT")) {
+                                                            badgeClass = "bg-warning";
+                                                        } else if(order.getOrderStatus().equalsIgnoreCase("CANCELLED")) {
+                                                            badgeClass = "bg-danger";
+                                                        }
+                                                        %>
+                                                        <span class="badge <%= badgeClass %>"><%= order.getOrderStatus() %></span>
+                                                    </td>
+                                                    <td><%= order.getPaymentMethod() %></td>
+                                                    <td>
+                                                        <a href="order-details.jsp?orderId=<%= order.getOrderId() %>" 
+                                                           class="btn btn-sm btn-primary">View Details</a>
+                                                    </td>
+                                                </tr>
+                                            <% } %>
+                                        <% } else { %>
+                                            <tr>
+                                                <td colspan="7" class="text-center">No orders found</td>
+                                            </tr>
                                         <% } %>
                                     </tbody>
                                 </table>

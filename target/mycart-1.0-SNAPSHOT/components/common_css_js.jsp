@@ -8,6 +8,84 @@
 <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 <script src="js/script.js"></script>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+    // Razorpay payment initialization
+    function initializeRazorpayPayment(orderId, amount, name, email, contact) {
+        var options = {
+            "key": "rzp_test_On67aDeEYAAIps", // Your test key
+            "amount": amount * 100, // Amount in paise
+            "currency": "INR",
+            "name": "MyCart",
+            "description": "Order Payment",
+            "image": "https://example.com/your_logo.png",
+            "order_id": orderId,
+            "handler": function (response) {
+                // Get the pending order from localStorage
+                const orderData = JSON.parse(localStorage.getItem('pendingOrder'));
+                if (!orderData) {
+                    showToast("Error: Order data not found");
+                    return;
+                }
+
+                // Add payment details to order data
+                orderData.razorpayPaymentId = response.razorpay_payment_id;
+                orderData.razorpayOrderId = response.razorpay_order_id;
+                orderData.razorpaySignature = response.razorpay_signature;
+
+                // Create the order in our system
+                fetch('order', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(orderData)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Clear cart and pending order
+                        localStorage.removeItem('cart');
+                        localStorage.removeItem('pendingOrder');
+                        updateCart();
+                        
+                        // Show success message and redirect
+                        showToast("Payment successful! Order placed.");
+                        setTimeout(() => {
+                            window.location.href = "order-confirmation.jsp?orderId=" + data.orderId;
+                        }, 1500);
+                    } else {
+                        throw new Error(data.message || 'Failed to create order');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showToast("Error creating order: " + error.message);
+                });
+            },
+            "prefill": {
+                "name": name,
+                "email": email,
+                "contact": contact
+            },
+            "theme": {
+                "color": "#673ab7"
+            },
+            "modal": {
+                "ondismiss": function() {
+                    // Re-enable place order button if payment modal is dismissed
+                    const placeOrderBtn = document.getElementById('place-order-btn');
+                    if (placeOrderBtn) {
+                        placeOrderBtn.disabled = false;
+                        placeOrderBtn.innerHTML = 'Place Order';
+                    }
+                }
+            }
+        };
+        var rzp1 = new Razorpay(options);
+        rzp1.open();
+    }
+</script>
 
 <style>
     .custom-bg {

@@ -42,6 +42,10 @@
             .detail-row {
                 margin-bottom: 15px;
             }
+            .redirect-message {
+                margin-top: 20px;
+                color: #666;
+            }
         </style>
     </head>
     <body>
@@ -74,6 +78,7 @@
                 
                 <div class="text-center mt-4">
                     <a href="index.jsp" class="btn btn-primary">Continue Shopping</a>
+                    <p class="redirect-message">Redirecting to home page in <span id="countdown">5</span> seconds...</p>
                 </div>
             </div>
         </div>
@@ -93,6 +98,20 @@
                     orderDetails.shippingAddress.state + ' - ' +
                     orderDetails.shippingAddress.pincode;
             }
+            
+            // Countdown timer and redirect
+            let countdown = 5;
+            const countdownElement = document.getElementById('countdown');
+            
+            const timer = setInterval(() => {
+                countdown--;
+                countdownElement.textContent = countdown;
+                
+                if (countdown <= 0) {
+                    clearInterval(timer);
+                    window.location.href = 'index.jsp';
+                }
+            }, 1000);
         </script>
     </body>
 </html> 

@@ -31,6 +31,26 @@
                 border-top: 1px solid #dee2e6;
                 margin: 1rem 0;
             }
+
+            #place-order-btn {
+                background-color: #673ab7;
+                color: white;
+                padding: 10px 20px;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+                width: 100%;
+                margin-top: 20px;
+            }
+
+            #place-order-btn:hover {
+                background-color: #563d7c;
+            }
+
+            #place-order-btn:disabled {
+                background-color: #cccccc;
+                cursor: not-allowed;
+            }
         </style>
     </head>
     <body>
@@ -45,26 +65,26 @@
                             <h4 class="mb-0">Shipping Details</h4>
                         </div>
                         <div class="card-body">
-                            <form id="checkoutForm" onsubmit="return placeOrder(event)">
+                            <form id="checkoutForm">
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
                                         <label for="firstName" class="form-label">First Name</label>
                                         <input type="text" class="form-control" id="firstName" name="firstName" value="<%= user.getUserName() %>" required>
-                                    </div>
+                            </div>
                                     <div class="col-md-6 mb-3">
                                         <label for="lastName" class="form-label">Last Name</label>
                                         <input type="text" class="form-control" id="lastName" name="lastName" required>
-                                    </div>
-                                </div>
+                        </div>
+                    </div>
 
                                 <div class="mb-3">
                                     <label for="email" class="form-label">Email</label>
                                     <input type="email" class="form-control" id="email" name="email" value="<%= user.getUserEmail() %>" required>
-                                </div>
+                </div>
 
                                 <div class="mb-3">
                                     <label for="phone" class="form-label">Phone Number</label>
-                                    <input type="tel" class="form-control" id="phone" name="phone" required>
+                                    <input type="tel" class="form-control" id="phone" name="phone" value="<%= user.getUserPhone() %>" required>
                                 </div>
 
                                 <div class="mb-3">
@@ -87,45 +107,22 @@
                                     </div>
                                 </div>
 
-                                <div class="mb-3">
-                                    <label for="paymentMethod" class="form-label">Payment Method</label>
-                                    <select class="form-select" id="paymentMethod" name="paymentMethod" required>
-                                        <option value="">Choose...</option>
+                                <div class="form-group">
+                                    <label for="paymentMethod">Payment Method</label>
+                                    <select class="form-control" id="paymentMethod" name="paymentMethod" required>
+                                        <option value="">Select Payment Method</option>
                                         <option value="cod">Cash on Delivery</option>
-                                        <option value="card">Credit/Debit Card</option>
-                                        <option value="upi">UPI</option>
+                                        <option value="razorpay">Razorpay</option>
                                     </select>
                                 </div>
 
-                                <div id="cardDetails" style="display: none;">
-                                    <div class="row">
-                                        <div class="col-md-6 mb-3">
-                                            <label for="cardNumber" class="form-label">Card Number</label>
-                                            <input type="text" class="form-control" id="cardNumber" name="cardNumber">
-                                        </div>
-                                        <div class="col-md-3 mb-3">
-                                            <label for="expiryDate" class="form-label">Expiry Date</label>
-                                            <input type="text" class="form-control" id="expiryDate" name="expiryDate" placeholder="MM/YY">
-                                        </div>
-                                        <div class="col-md-3 mb-3">
-                                            <label for="cvv" class="form-label">CVV</label>
-                                            <input type="password" class="form-control" id="cvv" name="cvv" maxlength="3">
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div id="upiDetails" style="display: none;">
-                                    <div class="mb-3">
-                                        <label for="upiId" class="form-label">UPI ID</label>
-                                        <input type="text" class="form-control" id="upiId" name="upiId" placeholder="username@upi">
-                                    </div>
-                                </div>
-
-                                <button type="submit" class="btn btn-primary w-100 mt-3">Place Order</button>
+                                <button type="submit" id="place-order-btn" class="btn btn-primary">
+                                    Place Order
+                                </button>
                             </form>
                         </div>
                     </div>
-                </div>
+                                </div>
 
                 <!-- Order Summary -->
                 <div class="col-md-4">
@@ -144,7 +141,7 @@
                             </div>
                             <div class="d-flex justify-content-between mb-2">
                                 <span>Shipping:</span>
-                                <span>₹<span id="shipping">50.00</span></span>
+                                <span>₹<span id="shipping">0.00</span></span>
                             </div>
                             <div class="d-flex justify-content-between mb-2">
                                 <span>Tax (18%):</span>
@@ -162,11 +159,39 @@
         </div>
 
         <script>
+            let totalAmount = 0;
+
             // Load order summary when page loads
             document.addEventListener('DOMContentLoaded', function() {
                 loadOrderSummary();
-                setupPaymentMethodListener();
+                validateForm();
+                
+                // Add form submission handler
+                document.getElementById('checkoutForm').addEventListener('submit', function(e) {
+                    e.preventDefault(); // Prevent default form submission
+                    placeOrder();
+                });
             });
+
+            // Add event listeners to all form inputs for validation
+            document.querySelectorAll('#checkoutForm input, #checkoutForm select, #checkoutForm textarea').forEach(input => {
+                input.addEventListener('input', validateForm);
+            });
+
+            function validateForm() {
+                const form = document.getElementById('checkoutForm');
+                const inputs = form.querySelectorAll('input[required], select[required], textarea[required]');
+                const placeOrderBtn = document.getElementById('place-order-btn');
+                
+                let isValid = true;
+                inputs.forEach(input => {
+                    if (!input.value.trim()) {
+                        isValid = false;
+                    }
+                });
+
+                placeOrderBtn.disabled = !isValid;
+            }
 
             function loadOrderSummary() {
                 const cart = JSON.parse(localStorage.getItem('cart')) || [];
@@ -200,97 +225,124 @@
                 // Calculate totals
                 const shipping = subtotal > 500 ? 0 : 50;
                 const tax = subtotal * 0.18;
-                const total = subtotal + shipping + tax;
+                totalAmount = subtotal + shipping + tax;
 
                 document.getElementById('subtotal').textContent = subtotal.toFixed(2);
                 document.getElementById('shipping').textContent = shipping.toFixed(2);
                 document.getElementById('tax').textContent = tax.toFixed(2);
-                document.getElementById('total').textContent = total.toFixed(2);
+                document.getElementById('total').textContent = totalAmount.toFixed(2);
             }
 
-            function setupPaymentMethodListener() {
-                const paymentMethod = document.getElementById('paymentMethod');
-                const cardDetails = document.getElementById('cardDetails');
-                const upiDetails = document.getElementById('upiDetails');
-
-                paymentMethod.addEventListener('change', function() {
-                    cardDetails.style.display = this.value === 'card' ? 'block' : 'none';
-                    upiDetails.style.display = this.value === 'upi' ? 'block' : 'none';
-
-                    // Reset validation requirements based on payment method
-                    const cardInputs = cardDetails.querySelectorAll('input');
-                    const upiInput = upiDetails.querySelector('input');
-
-                    cardInputs.forEach(input => {
-                        input.required = this.value === 'card';
-                    });
-                    if (upiInput) {
-                        upiInput.required = this.value === 'upi';
-                    }
-                });
-            }
-
-            function placeOrder(event) {
-                event.preventDefault();
+            function placeOrder() {
+                const form = document.getElementById('checkoutForm');
+                if (!form.checkValidity()) {
+                    form.reportValidity();
+                    return;
+                }
                 
-                const form = event.target;
-                const formData = new FormData(form);
+                // Get cart items from localStorage
                 const cart = JSON.parse(localStorage.getItem('cart')) || [];
                 
                 if (cart.length === 0) {
                     showToast("Your cart is empty!");
-                    return false;
+                    return;
                 }
 
+                const paymentMethod = document.getElementById('paymentMethod').value;
+                
                 // Create order object
-                const shippingAddress = {
-                    firstName: formData.get('firstName'),
-                    lastName: formData.get('lastName'),
-                    email: formData.get('email'),
-                    phone: formData.get('phone'),
-                    address: formData.get('address'),
-                    city: formData.get('city'),
-                    state: formData.get('state'),
-                    pincode: formData.get('pincode')
-                };
-
-                const order = {
-                    items: cart,
-                    shippingAddress: shippingAddress,
-                    paymentMethod: formData.get('paymentMethod'),
-                    userId: '<%= user.getUserId() %>'
-                };
-
-                // Save order details for confirmation page
-                localStorage.setItem('lastOrder', JSON.stringify({
-                    shippingAddress: shippingAddress,
-                    orderId: 'ORD' + Date.now()
-                }));
-
-                // Send order to server
-                fetch('OrderServlet', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
+                const orderData = {
+                    shippingAddress: {
+                        address: document.getElementById('address').value,
+                        city: document.getElementById('city').value,
+                        state: document.getElementById('state').value,
+                        pincode: document.getElementById('pincode').value
                     },
-                    body: JSON.stringify(order)
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        // Clear cart and redirect to confirmation page
-                        localStorage.removeItem('cart');
-                        window.location.href = 'order-confirmation.jsp?orderId=' + data.orderId;
-                    } else {
-                        showToast(data.message || 'Error placing order');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    showToast('Error placing order. Please try again.');
-                });
+                    paymentMethod: paymentMethod,
+                    items: cart.map(item => ({
+                        productId: item.productId,
+                        productQuantity: item.productQuantity,
+                        productPrice: item.productPrice
+                    }))
+                };
 
-                return false;
+                // Disable the place order button
+                const placeOrderBtn = document.getElementById('place-order-btn');
+                placeOrderBtn.disabled = true;
+                placeOrderBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Processing...';
+
+                if (paymentMethod === 'razorpay') {
+                    // First create Razorpay order
+                    fetch('RazorpayOrderServlet', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ amount: totalAmount })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === 'success') {
+                            // Initialize Razorpay payment
+                            initializeRazorpayPayment(
+                                data.orderId,
+                                totalAmount,
+                                document.getElementById('firstName').value,
+                                document.getElementById('email').value,
+                                document.getElementById('phone').value
+                            );
+                            
+                            // Store order data in localStorage to be used after payment
+                            localStorage.setItem('pendingOrder', JSON.stringify(orderData));
+                        } else {
+                            throw new Error(data.message || 'Failed to create Razorpay order');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        showToast("Error creating payment: " + error.message);
+                        placeOrderBtn.disabled = false;
+                        placeOrderBtn.innerHTML = 'Place Order';
+                    });
+                } else {
+                    // For COD, proceed with normal order creation
+                    fetch('order', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(orderData)
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.success) {
+                            // Clear cart
+                            localStorage.removeItem('cart');
+                            updateCart();
+                            
+                            // Show success message and redirect
+                            showToast("Order placed successfully!");
+                            setTimeout(() => {
+                                window.location.href = 'order-confirmation.jsp?orderId=' + data.orderId;
+                            }, 1500);
+                        } else {
+                            throw new Error(data.message || 'Failed to place order');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        showToast("Error placing order: " + error.message);
+                        
+                        // Re-enable the place order button
+                        placeOrderBtn.disabled = false;
+                        placeOrderBtn.innerHTML = 'Place Order';
+                    });
+                }
             }
         </script>
     </body>

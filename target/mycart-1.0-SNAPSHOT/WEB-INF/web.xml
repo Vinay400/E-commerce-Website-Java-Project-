@@ -32,6 +32,28 @@
 
 
     <servlet>
+        <servlet-name>normal</servlet-name>
+        <jsp-file>/normal.jsp</jsp-file>
+    </servlet>
+    
+    <servlet-mapping>
+        <servlet-name>normal</servlet-name>
+        <url-pattern>/normal</url-pattern>
+    </servlet-mapping>
+    
+    <servlet>
+        <servlet-name>admin</servlet-name>
+        <jsp-file>/admin.jsp</jsp-file>
+    </servlet>
+    
+    <servlet-mapping>
+        <servlet-name>admin</servlet-name>
+        <url-pattern>/admin</url-pattern>
+    </servlet-mapping>
+
+
+
+    <servlet>
         <servlet-name>RegisterServlet</servlet-name>
         <servlet-class>com.learn.mycart.servlets.RegisterServlet</servlet-class>
     </servlet>
@@ -50,6 +72,14 @@
     <servlet>
         <servlet-name>CheckoutServlet</servlet-name>
         <servlet-class>com.learn.mycart.servlets.CheckoutServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>RazorpayOrderServlet</servlet-name>
+        <servlet-class>com.learn.mycart.servlets.RazorpayOrderServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>OrderServlet</servlet-name>
+        <servlet-class>com.learn.mycart.servlets.OrderServlet</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>RegisterServlet</servlet-name>
@@ -70,6 +100,14 @@
     <servlet-mapping>
         <servlet-name>CheckoutServlet</servlet-name>
         <url-pattern>/CheckoutServlet</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>RazorpayOrderServlet</servlet-name>
+        <url-pattern>/RazorpayOrderServlet</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>OrderServlet</servlet-name>
+        <url-pattern>/order</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>
