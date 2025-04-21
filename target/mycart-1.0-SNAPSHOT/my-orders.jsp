@@ -81,6 +81,36 @@
                 font-size: 0.85em;
                 padding: 0.5em 1em;
             }
+            
+            .order-card {
+                transition: all 0.3s ease;
+            }
+            
+            .order-card:hover {
+                background-color: #f8f9fa;
+            }
+            
+            .status-badge {
+                padding: 0.5em 1em;
+                border-radius: 50px;
+                font-size: 0.9em;
+                font-weight: 500;
+            }
+            
+            .status-completed {
+                background-color: #d4edda;
+                color: #155724;
+            }
+            
+            .status-pending {
+                background-color: #fff3cd;
+                color: #856404;
+            }
+            
+            .status-cancelled {
+                background-color: #f8d7da;
+                color: #721c24;
+            }
         </style>
     </head>
     <body>
@@ -103,7 +133,7 @@
                             <a href="my-orders.jsp" class="nav-link active">
                                 <i class="fas fa-box me-2"></i> My Orders
                             </a>
-                            <a href="#" class="nav-link">
+                            <a href="profile" class="nav-link">
                                 <i class="fas fa-user me-2"></i> Profile
                             </a>
                             <a href="LogoutServlet" class="nav-link">
@@ -149,17 +179,9 @@
                                                     <td><%= order.getTotalItems() %> items</td>
                                                     <td>$<%= String.format("%.2f", order.getTotalAmount()) %></td>
                                                     <td>
-                                                        <% 
-                                                        String badgeClass = "bg-info";
-                                                        if(order.getOrderStatus().equalsIgnoreCase("DELIVERED")) {
-                                                            badgeClass = "bg-success";
-                                                        } else if(order.getOrderStatus().equalsIgnoreCase("IN_TRANSIT")) {
-                                                            badgeClass = "bg-warning";
-                                                        } else if(order.getOrderStatus().equalsIgnoreCase("CANCELLED")) {
-                                                            badgeClass = "bg-danger";
-                                                        }
-                                                        %>
-                                                        <span class="badge <%= badgeClass %>"><%= order.getOrderStatus() %></span>
+                                                        <span class="status-badge status-<%= order.getOrderStatus().toLowerCase() %>">
+                                                            <%= order.getOrderStatus() %>
+                                                        </span>
                                                     </td>
                                                     <td><%= order.getPaymentMethod() %></td>
                                                     <td>

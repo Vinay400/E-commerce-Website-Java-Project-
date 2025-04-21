@@ -120,7 +120,7 @@
                             <a href="my-orders.jsp" class="nav-link">
                                 <i class="fas fa-box me-2"></i> My Orders
                             </a>
-                            <a href="#" class="nav-link">
+                            <a href="profile" class="nav-link">
                                 <i class="fas fa-user me-2"></i> Profile
                             </a>
                             <a href="LogoutServlet" class="nav-link">
@@ -211,7 +211,7 @@
                     <div class="card mb-4">
                         <div class="card-header py-3 d-flex justify-content-between align-items-center">
                             <h6 class="m-0 font-weight-bold text-primary">Recent Orders</h6>
-                            <a href="orders.jsp" class="btn btn-sm btn-primary">View All Orders</a>
+                            <a href="my-orders" class="btn btn-sm btn-primary">View All Orders</a>
                         </div>
                         <div class="card-body">
                             <div class="table-responsive">

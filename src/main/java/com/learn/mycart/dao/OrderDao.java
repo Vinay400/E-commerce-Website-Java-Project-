@@ -136,33 +136,30 @@ public class OrderDao {
     }
 
     public List<Order> getRecentOrdersByUser(int userId, int limit) {
-        System.out.println("\n=== Getting Recent Orders for User " + userId + " (limit: " + limit + ") ===");
+        System.out.println("\n=== Getting Recent Orders for User " + userId + " ===");
         if (userId <= 0) {
             System.out.println("Error: Invalid user ID: " + userId);
             throw new IllegalArgumentException("Invalid user ID");
-        }
-        if (limit <= 0) {
-            System.out.println("Error: Invalid limit: " + limit);
-            throw new IllegalArgumentException("Invalid limit");
         }
         
         List<Order> orders = null;
         Session session = null;
         try {
+            String query = "SELECT DISTINCT o FROM Order o LEFT JOIN FETCH o.items WHERE o.user.userId = :uid ORDER BY o.orderDate DESC";
+            System.out.println("Query: " + query);
+            
             session = this.factory.openSession();
             System.out.println("Session opened successfully");
             
-            String queryStr = "FROM Order o WHERE o.user.userId = :uid ORDER BY o.orderDate DESC";
-            System.out.println("Query: " + queryStr);
-            
-            Query<Order> query = session.createQuery(queryStr, Order.class);
-            query.setParameter("uid", userId);
-            query.setMaxResults(limit);
+            Query q = session.createQuery(query);
+            q.setParameter("uid", userId);
+            q.setMaxResults(limit);
             System.out.println("Query parameters set");
             
-            orders = query.getResultList();
-            System.out.println("Query executed, orders found: " + (orders != null ? orders.size() : "null"));
+            orders = q.getResultList();
+            System.out.println("Query executed, orders found: " + (orders != null ? orders.size() : 0));
             
+            // Log each order's details
             if (orders != null) {
                 for (Order order : orders) {
                     System.out.println("Order loaded - ID: " + order.getOrderId() + 

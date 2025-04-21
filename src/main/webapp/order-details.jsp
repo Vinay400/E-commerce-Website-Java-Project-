@@ -5,7 +5,6 @@
 <%@page import="com.learn.mycart.dao.OrderDao"%>
 <%@page import="com.learn.mycart.helper.FactoryProvider"%>
 <%@page import="java.text.SimpleDateFormat"%>
-<%@page import="java.util.List"%>
 <%
     User user = (User) session.getAttribute("current-user");
     if (user == null) {
@@ -14,20 +13,21 @@
         return;
     }
     
-    // Get order ID from request parameter
     String orderIdStr = request.getParameter("orderId");
     if (orderIdStr == null || orderIdStr.trim().isEmpty()) {
-        response.sendRedirect("normal.jsp");
+        session.setAttribute("message", "Order ID is required!");
+        response.sendRedirect("my-orders.jsp");
         return;
     }
     
-    int orderId = Integer.parseInt(orderIdStr);
+    Long orderId = Long.parseLong(orderIdStr);
     OrderDao orderDao = new OrderDao(FactoryProvider.getFactory());
     Order order = orderDao.getOrderById(orderId);
     
     // Verify order belongs to current user
     if (order == null || order.getUser().getUserId() != user.getUserId()) {
-        response.sendRedirect("normal.jsp");
+        session.setAttribute("message", "Order not found or unauthorized access!");
+        response.sendRedirect("my-orders.jsp");
         return;
     }
     
@@ -39,153 +39,145 @@
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Order Details - MyCart</title>
-        <%@include file="components/common_css_js.jsp"%>
+        
+        <!-- Bootstrap CSS -->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
+        <!-- Font Awesome -->
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+        <!-- Custom CSS -->
         <style>
-            .order-details-card {
-                border-radius: 10px;
-                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            :root {
+                --primary-color: #4e73df;
+                --secondary-color: #858796;
+                --success-color: #1cc88a;
             }
+            
+            body {
+                background-color: #f8f9fc;
+                font-family: 'Nunito', sans-serif;
+            }
+            
+            .card {
+                border: none;
+                border-radius: 0.35rem;
+                box-shadow: 0 0.15rem 1.75rem 0 rgba(58,59,69,.15);
+            }
+            
             .status-badge {
-                padding: 5px 10px;
-                border-radius: 15px;
-                font-size: 0.8rem;
+                padding: 0.5em 1em;
+                border-radius: 50px;
+                font-size: 0.9em;
                 font-weight: 500;
             }
-            .status-PENDING {
-                background-color: #ffd700;
-                color: #000;
+            
+            .status-completed {
+                background-color: #d4edda;
+                color: #155724;
             }
-            .status-COMPLETED {
-                background-color: #28a745;
-                color: #fff;
+            
+            .status-pending {
+                background-color: #fff3cd;
+                color: #856404;
             }
-            .status-CANCELLED {
-                background-color: #dc3545;
-                color: #fff;
+            
+            .status-cancelled {
+                background-color: #f8d7da;
+                color: #721c24;
             }
+            
             .product-img {
-                max-width: 80px;
-                height: auto;
-                border-radius: 5px;
+                width: 60px;
+                height: 60px;
+                object-fit: cover;
+                border-radius: 0.35rem;
             }
         </style>
     </head>
     <body>
-        <%@include file="components/navbar.jsp"%>
-        
-        <div class="container py-4">
+        <div class="container py-5">
             <div class="row">
-                <div class="col-md-8 mx-auto">
-                    <div class="card order-details-card">
-                        <div class="card-header bg-white d-flex justify-content-between align-items-center">
-                            <h5 class="mb-0">Order #ORD-<%= order.getOrderId() %></h5>
-                            <span class="status-badge status-<%= order.getOrderStatus() %>">
-                                <%= order.getOrderStatus() %>
-                            </span>
-                        </div>
+                <div class="col-12">
+                    <div class="card mb-4">
                         <div class="card-body">
-                            <div class="row mb-4">
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <h2>Order Details</h2>
+                                <a href="my-orders.jsp" class="btn btn-outline-primary">
+                                    <i class="fas fa-arrow-left me-2"></i>Back to Orders
+                                </a>
+                            </div>
+                            
+                            <div class="row">
                                 <div class="col-md-6">
-                                    <h6 class="text-muted">Order Date</h6>
+                                    <h6 class="text-muted">Order ID</h6>
+                                    <p>#ORD-<%= order.getOrderId() %></p>
+                                    
+                                    <h6 class="text-muted mt-3">Order Date</h6>
                                     <p><%= dateFormat.format(order.getOrderDate()) %></p>
+                                    
+                                    <h6 class="text-muted mt-3">Status</h6>
+                                    <p>
+                                        <span class="status-badge status-<%= order.getOrderStatus().toLowerCase() %>">
+                                            <%= order.getOrderStatus() %>
+                                        </span>
+                                    </p>
                                     
                                     <h6 class="text-muted mt-3">Payment Method</h6>
                                     <p><%= order.getPaymentMethod() %></p>
-                                    
-                                    <% if (order.getPaymentId() != null && !order.getPaymentId().isEmpty()) { %>
-                                        <h6 class="text-muted mt-3">Payment ID</h6>
-                                        <p><%= order.getPaymentId() %></p>
-                                    <% } %>
                                 </div>
                                 <div class="col-md-6">
                                     <h6 class="text-muted">Shipping Address</h6>
-                                    <p>
-                                        <%= order.getShippingAddress() %><br>
-                                        <%= order.getShippingCity() %>, <%= order.getShippingState() %><br>
-                                        <%= order.getShippingZip() %>
-                                    </p>
+                                    <p><%= order.getShippingAddress() %></p>
                                 </div>
                             </div>
                             
-                            <h6 class="mb-3">Order Items</h6>
-                            <div class="table-responsive">
+                            <div class="table-responsive mt-4">
                                 <table class="table">
                                     <thead>
                                         <tr>
                                             <th>Product</th>
                                             <th>Price</th>
                                             <th>Quantity</th>
-                                            <th class="text-end">Total</th>
+                                            <th>Subtotal</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <% for (OrderItem item : order.getOrderItems()) { %>
+                                        <% for (OrderItem item : order.getItems()) { %>
                                             <tr>
                                                 <td>
                                                     <div class="d-flex align-items-center">
                                                         <img src="img/products/<%= item.getProduct().getpPhoto() %>" 
-                                                             class="product-img me-3" 
-                                                             alt="<%= item.getProduct().getpName() %>">
+                                                             alt="<%= item.getProduct().getpName() %>" 
+                                                             class="product-img me-3">
                                                         <div>
                                                             <h6 class="mb-0"><%= item.getProduct().getpName() %></h6>
-                                                            <small class="text-muted"><%= item.getProduct().getCategory().getCategoryTitle() %></small>
+                                                            <small class="text-muted"><%= item.getProduct().getpDesc() %></small>
                                                         </div>
                                                     </div>
                                                 </td>
-                                                <td>₹<%= String.format("%.2f", item.getPrice()) %></td>
+                                                <td>₹<%= item.getProduct().getPriceAfterApplyingDiscount() %></td>
                                                 <td><%= item.getQuantity() %></td>
-                                                <td class="text-end">₹<%= String.format("%.2f", item.getPrice() * item.getQuantity()) %></td>
+                                                <td>₹<%= item.getSubtotal() %></td>
                                             </tr>
                                         <% } %>
                                     </tbody>
                                     <tfoot>
                                         <tr>
-                                            <td colspan="3" class="text-end"><strong>Subtotal:</strong></td>
-                                            <td class="text-end">₹<%= String.format("%.2f", order.getTotalAmount()) %></td>
-                                        </tr>
-                                        <tr>
-                                            <td colspan="3" class="text-end"><strong>Shipping:</strong></td>
-                                            <td class="text-end">Free</td>
-                                        </tr>
-                                        <tr>
                                             <td colspan="3" class="text-end"><strong>Total:</strong></td>
-                                            <td class="text-end"><strong>₹<%= String.format("%.2f", order.getTotalAmount()) %></strong></td>
+                                            <td><strong>₹<%= String.format("%.2f", order.getTotalAmount()) %></strong></td>
                                         </tr>
                                     </tfoot>
                                 </table>
                             </div>
-                        </div>
-                        <div class="card-footer bg-white">
-                            <a href="normal.jsp" class="btn btn-secondary">Back to Dashboard</a>
-                            <% if (order.getOrderStatus().equals("PENDING")) { %>
-                                <button class="btn btn-danger float-end" onclick="cancelOrder(<%= order.getOrderId() %>)">Cancel Order</button>
-                            <% } %>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <script>
-            function cancelOrder(orderId) {
-                if (confirm('Are you sure you want to cancel this order?')) {
-                    fetch('CancelOrderServlet?orderId=' + orderId, {
-                        method: 'POST'
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            location.reload();
-                        } else {
-                            alert('Failed to cancel order: ' + data.message);
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        alert('An error occurred while canceling the order');
-                    });
-                }
-            }
-        </script>
+        <!-- Bootstrap JS and dependencies -->
+        <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.min.js"></script>
+        <!-- Font Awesome -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
     </body>
 </html> 

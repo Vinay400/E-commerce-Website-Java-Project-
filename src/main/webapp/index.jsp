@@ -1,5 +1,3 @@
-
-
 <%@page import="com.learn.mycart.helper.Helper"%>
 <%@page import="com.learn.mycart.entities.Category"%>
 <%@page import="com.learn.mycart.dao.CategoryDao"%>
@@ -117,9 +115,23 @@
                                     </div>
 
                                     <div class="card-footer text-center">
-                                        <button class="btn custom-bg text-white" onclick="add_to_cart(<%=p.getpId()%>, '<%=Helper.escapeJavaScript(p.getpName())%>', <%=p.getPriceAfterApplyingDiscount()%>, '<%=p.getpPhoto()%>')">Add to Cart</button>
-                                        <button class="btn  btn-outline-success ">  &#8377; <%= p.getPriceAfterApplyingDiscount()%>/-  <span class="text-secondary discount-label">  &#8377; <%= p.getpPrice()%> , <%= p.getpDiscount()%>% off </span>  </button>
-
+                                        <button class="btn btn-primary add-to-cart-btn" 
+                                                data-pid="<%=p.getpId()%>" 
+                                                onclick='add_to_cart(<%=p.getpId()%>, "<%=Helper.escapeJavaScript(p.getpName())%>", <%=p.getPriceAfterApplyingDiscount()%>)'>
+                                            <i class="fa fa-shopping-cart"></i> Add to Cart
+                                        </button>
+                                        
+                                        <div class="price-info mt-2">
+                                            <span class="current-price">₹<%=p.getFormattedPrice()%></span>
+                                            <% if (p.getpDiscount() > 0) { %>
+                                                <span class="original-price text-muted text-decoration-line-through">
+                                                    <small>₹<%=p.getpPrice()%></small>
+                                                </span>
+                                                <span class="discount-badge ms-1">
+                                                    <small class="text-success"><%=p.getpDiscount()%>% off</small>
+                                                </span>
+                                            <% } %>
+                                        </div>
                                     </div>
 
 
@@ -160,5 +172,96 @@
 
         <%@include  file="components/common_modals.jsp" %>
 
+        <script>
+            // Function to show quantity controls and hide Add to Cart button
+            function showQuantityControls(productId) {
+                document.getElementById('quantity-controls-' + productId).classList.remove('d-none');
+                document.getElementById('add-to-cart-' + productId).classList.add('d-none');
+            }
+            
+            // Quantity control functions
+            function decrementQuantity(productId) {
+                const input = document.getElementById('quantity-' + productId);
+                const currentValue = parseInt(input.value);
+                if (currentValue > 1) {
+                    input.value = currentValue - 1;
+                }
+            }
+
+            function incrementQuantity(productId, maxQuantity) {
+                const input = document.getElementById('quantity-' + productId);
+                const currentValue = parseInt(input.value);
+                if (currentValue < parseInt(maxQuantity)) {
+                    input.value = currentValue + 1;
+                }
+            }
+
+            function validateQuantity(productId, maxQuantity) {
+                const input = document.getElementById('quantity-' + productId);
+                let value = parseInt(input.value);
+                maxQuantity = parseInt(maxQuantity);
+                
+                if (isNaN(value) || value < 1) {
+                    value = 1;
+                } else if (value > maxQuantity) {
+                    value = maxQuantity;
+                }
+                
+                input.value = value;
+            }
+
+            // Function to add to cart with selected quantity
+            function confirmAddToCart(pid, pname, price) {
+                const quantity = parseInt(document.getElementById('quantity-' + pid).value);
+                let cart = JSON.parse(localStorage.getItem('cart')) || [];
+                
+                // Check if product already exists in cart
+                let existingProduct = cart.find(item => item.productId === parseInt(pid));
+                
+                if (existingProduct) {
+                    existingProduct.quantity = quantity;
+                } else {
+                    cart.push({
+                        productId: parseInt(pid),
+                        productName: pname,
+                        price: parseFloat(price),
+                        quantity: quantity
+                    });
+                }
+                
+                localStorage.setItem('cart', JSON.stringify(cart));
+                updateCart();
+                
+                // Show success message
+                showToast('Added ' + quantity + (quantity === 1 ? ' item' : ' items') + ' to cart');
+                
+                // Hide quantity controls and show Add to Cart button again
+                document.getElementById('quantity-controls-' + pid).classList.add('d-none');
+                document.getElementById('add-to-cart-' + pid).classList.remove('d-none');
+            }
+
+            function showToast(message) {
+                const toast = document.createElement('div');
+                toast.className = 'position-fixed bottom-0 end-0 p-3';
+                toast.style.zIndex = '11';
+                
+                toast.innerHTML = 
+                    '<div class="toast show" role="alert" aria-live="assertive" aria-atomic="true">' +
+                        '<div class="toast-header">' +
+                            '<strong class="me-auto">MyCart</strong>' +
+                            '<button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>' +
+                        '</div>' +
+                        '<div class="toast-body">' +
+                            message +
+                        '</div>' +
+                    '</div>';
+                
+                document.body.appendChild(toast);
+                
+                setTimeout(() => {
+                    toast.remove();
+                }, 3000);
+            }
+        </script>
     </body>
 </html>

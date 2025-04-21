@@ -210,12 +210,14 @@
                     subtotal += itemTotal;
                     
                     itemsHtml += `
-                        <div class="d-flex justify-content-between align-items-center mb-2">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
                             <div>
-                                <h6 class="mb-0">${item.productName}</h6>
-                                <small class="text-muted">Qty: ${item.productQuantity} × ₹${item.productPrice}</small>
+                                <h6 class="mb-1">${item.productName}</h6>
+                                <small class="text-muted">
+                                    Quantity: ${item.productQuantity} × ₹${item.productPrice.toFixed(2)}
+                                </small>
                             </div>
-                            <span>₹${itemTotal}</span>
+                            <span class="text-primary">₹${itemTotal.toFixed(2)}</span>
                         </div>
                     `;
                 });
@@ -223,10 +225,11 @@
                 orderItemsContainer.innerHTML = itemsHtml;
 
                 // Calculate totals
-                const shipping = subtotal > 500 ? 0 : 50;
-                const tax = subtotal * 0.18;
+                const shipping = subtotal > 500 ? 0 : 50; // Free shipping for orders above ₹500
+                const tax = subtotal * 0.18; // 18% tax
                 totalAmount = subtotal + shipping + tax;
 
+                // Update summary values
                 document.getElementById('subtotal').textContent = subtotal.toFixed(2);
                 document.getElementById('shipping').textContent = shipping.toFixed(2);
                 document.getElementById('tax').textContent = tax.toFixed(2);

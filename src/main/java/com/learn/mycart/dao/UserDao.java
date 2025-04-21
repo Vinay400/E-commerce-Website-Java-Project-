@@ -1,9 +1,9 @@
-
 package com.learn.mycart.dao;
 
 import com.learn.mycart.entities.User;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
 import org.hibernate.query.Query;
 
 public class UserDao {
@@ -42,5 +42,18 @@ public class UserDao {
         return user;
     }
     
-    
+    public boolean updateUser(User user) {
+        boolean f = false;
+        try {
+            Session session = this.factory.openSession();
+            Transaction tx = session.beginTransaction();
+            session.update(user);
+            tx.commit();
+            session.close();
+            f = true;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return f;
+    }
 }

@@ -81,6 +81,22 @@
         <servlet-name>OrderServlet</servlet-name>
         <servlet-class>com.learn.mycart.servlets.OrderServlet</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>my-orders</servlet-name>
+        <jsp-file>/my-orders.jsp</jsp-file>
+    </servlet>
+    <servlet>
+        <servlet-name>profile</servlet-name>
+        <jsp-file>/profile.jsp</jsp-file>
+    </servlet>
+    <servlet>
+        <servlet-name>UpdateProfileServlet</servlet-name>
+        <servlet-class>com.learn.mycart.servlets.UpdateProfileServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>UpdatePasswordServlet</servlet-name>
+        <servlet-class>com.learn.mycart.servlets.UpdatePasswordServlet</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>RegisterServlet</servlet-name>
         <url-pattern>/RegisterServlet</url-pattern>
@@ -108,6 +124,22 @@
     <servlet-mapping>
         <servlet-name>OrderServlet</servlet-name>
         <url-pattern>/order</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>my-orders</servlet-name>
+        <url-pattern>/my-orders</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>profile</servlet-name>
+        <url-pattern>/profile</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>UpdateProfileServlet</servlet-name>
+        <url-pattern>/UpdateProfileServlet</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>UpdatePasswordServlet</servlet-name>
+        <url-pattern>/UpdatePasswordServlet</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>

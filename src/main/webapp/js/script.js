@@ -1,94 +1,205 @@
-function add_to_cart(pid, pname, price)
-{
+// Check if product is in cart
+function isProductInCart(pid) {
     let cart = localStorage.getItem("cart");
-    if (cart == null)
-    {
+    if (cart != null) {
+        let pcart = JSON.parse(cart);
+        return pcart.some(item => item.productId == pid);
+    }
+    return false;
+}
+
+// Update all add to cart buttons
+function updateAddToCartButtons() {
+    // Find all add to cart buttons
+    $('.add-to-cart-btn').each(function() {
+        const pid = $(this).data('pid');
+        if (isProductInCart(pid)) {
+            $(this).html('<i class="fa fa-check"></i> Added');
+            $(this).removeClass('btn-primary').addClass('btn-success');
+        } else {
+            $(this).html('<i class="fa fa-shopping-cart"></i> Add to Cart');
+            $(this).removeClass('btn-success').addClass('btn-primary');
+        }
+    });
+}
+
+function add_to_cart(pid, pname, price) {
+    // Validate inputs
+    if (!pid || !pname || price === undefined || price === null) {
+        console.error('Invalid product data:', { pid, pname, price });
+        showToast("Error: Invalid product data");
+        return;
+    }
+
+    // Convert price to number and validate
+    const numericPrice = parseFloat(price);
+    if (isNaN(numericPrice)) {
+        console.error('Invalid price value:', price);
+        showToast("Error: Invalid price value");
+        return;
+    }
+
+    let cart = localStorage.getItem("cart");
+    if (cart == null) {
         //no cart yet  
         let products = [];
-        let product = {productId: pid, productName: pname, productQuantity: 1, productPrice: price}
+        let product = {
+            productId: parseInt(pid),
+            productName: pname,
+            productQuantity: 1,
+            productPrice: numericPrice
+        }
         products.push(product);
         localStorage.setItem("cart", JSON.stringify(products));
-        showToast("Item is added to cart")
-    } else
-    {
+        showToast("Item is added to cart");
+    } else {
         //cart is already present
         let pcart = JSON.parse(cart);
-
-        let oldProduct = pcart.find((item) => item.productId == pid)
-        if (oldProduct)
-        {
+        let oldProduct = pcart.find((item) => item.productId == pid);
+        if (oldProduct) {
             //we have to increase the quantity
-            oldProduct.productQuantity = oldProduct.productQuantity + 1
+            oldProduct.productQuantity = oldProduct.productQuantity + 1;
             pcart.map((item) => {
-                if (item.productId === oldProduct.productId)
-                {
+                if (item.productId === oldProduct.productId) {
                     item.productQuantity = oldProduct.productQuantity;
                 }
-            })
+            });
             localStorage.setItem("cart", JSON.stringify(pcart));
-            showToast(oldProduct.productName + " quantity is increased , Quantity = " + oldProduct.productQuantity)
-
-        } else
-        {
+            showToast(oldProduct.productName + " quantity is increased , Quantity = " + oldProduct.productQuantity);
+        } else {
             //we have add the product
-            let product = {productId: pid, productName: pname, productQuantity: 1, productPrice: price}
-            pcart.push(product)
+            let product = {
+                productId: parseInt(pid),
+                productName: pname,
+                productQuantity: 1,
+                productPrice: numericPrice
+            }
+            pcart.push(product);
             localStorage.setItem("cart", JSON.stringify(pcart));
-            showToast("Product is added to cart")
+            showToast("Product is added to cart");
         }
     }
     updateCart();
+    updateAddToCartButtons();
 }
 
 //update cart:
-function updateCart()
-{
+function updateCart() {
     let cartString = localStorage.getItem("cart");
-    let cart = JSON.parse(cartString);
-    if (cart == null || cart.length == 0)
-    {
-        console.log("Cart is empty !!")
+    let cart = [];
+    
+    try {
+        cart = JSON.parse(cartString) || [];
+    } catch (e) {
+        console.error('Error parsing cart data:', e);
+        localStorage.setItem("cart", "[]");
+    }
+
+    if (!cart || cart.length == 0) {
+        console.log("Cart is empty !!");
         $(".cart-items").html("( 0 )");
-        $(".cart-body").html("<h3>Cart does not have any items </h3>");
-        $(".checkout-btn").attr('disabled', true)
-    } else
-    {
-        //there is some in cart to show
-        console.log(cart)
-        $(".cart-items").html(`( ${cart.length} )`);
-        let table = `
-            <table class='table'>
-            <thead class='thread-light'>
+        $(".cart-body").html(`
+            <div class="empty-cart">
+                <i class="fa fa-shopping-cart"></i>
+                <h3>Your cart is empty</h3>
+                <p>Add items to your cart to see them here</p>
+                <a href="index.jsp" class="btn btn-primary">Start Shopping</a>
+            </div>
+        `);
+        $(".cart-summary-body").html(`
+            <div class="text-center">
+                <p>No items in cart</p>
+                <hr>
+                <h4>Total: ₹0.00</h4>
+            </div>
+        `);
+        $(".checkout-btn").attr('disabled', true);
+        return;
+    }
+
+    //there is something in cart to show
+    console.log(cart);
+    $(".cart-items").html(`( ${cart.length} )`);
+    
+    let table = `
+        <table class='table'>
+            <thead class='thead-light'>
                 <tr>
-                <th>Item Name </th>
-                <th>Price </th>
-                <th>Quantity </th>
-                <th>Total Price </th>
-                <th>Action</th>
+                    <th>Item Name</th>
+                    <th>Price</th>
+                    <th>Quantity</th>
+                    <th>Total Price</th>
+                    <th>Action</th>
                 </tr>
             </thead>
+            <tbody>
+    `;
+
+    let totalPrice = 0;
+    cart.forEach((item) => {
+        // Ensure numeric values
+        const quantity = parseInt(item.productQuantity) || 0;
+        const price = parseFloat(item.productPrice) || 0;
+        const itemTotal = quantity * price;
+        totalPrice += itemTotal;
+        
+        table += `
+            <tr>
+                <td>${item.productName || 'Unknown Product'}</td>
+                <td>₹${price.toFixed(2)}</td>
+                <td> 
+                    <div class="quantity-controls">
+                        <button onclick='decreaseQuantity(${item.productId})' class='btn btn-sm btn-light'><i class="fa fa-minus"></i></button>
+                        <span class="mx-2">${quantity}</span>
+                        <button onclick='increaseQuantity(${item.productId})' class='btn btn-sm btn-light'><i class="fa fa-plus"></i></button>
+                    </div>
+                </td>
+                <td>₹${itemTotal.toFixed(2)}</td>
+                <td>
+                    <button onclick='deleteItemFromCart(${item.productId})' class='btn-remove'>
+                        <i class="fa fa-trash"></i>
+                    </button>
+                </td>    
+            </tr>
         `;
+    });
 
-        let totalPrice = 0;
-        cart.map((item) => {
-            table += `
-                    <tr>
-                        <td> ${item.productName} </td>
-                        <td> ${item.productPrice} </td>
-                        <td> ${item.productQuantity} </td>
-                        <td> ${item.productQuantity * item.productPrice} </td>
-                        <td> <button onclick='deleteItemFromCart(${item.productId})' class='btn btn-danger btn-sm'>Remove</button> </td>    
-                     </tr>
-                 `
-            totalPrice += item.productPrice * item.productQuantity;
-        })
-
-        table = table + `
-            <tr><td colspan='5' class='text-right font-weight-bold m-5'> Total Price : ${totalPrice} </td></tr>
-         </table>`
-        $(".cart-body").html(table);
-        $(".checkout-btn").attr('disabled', false)
-    }
+    table += `
+            </tbody>
+        </table>
+    `;
+    
+    $(".cart-body").html(table);
+    
+    // Calculate additional charges
+    const shipping = totalPrice > 500 ? 0 : 50;
+    const tax = totalPrice * 0.18;
+    const finalTotal = totalPrice + shipping + tax;
+    
+    // Update cart summary
+    $(".cart-summary-body").html(`
+        <div>
+            <div class="d-flex justify-content-between mb-2">
+                <span>Subtotal:</span>
+                <span>₹${totalPrice.toFixed(2)}</span>
+            </div>
+            <div class="d-flex justify-content-between mb-2">
+                <span>Shipping:</span>
+                <span>₹${shipping.toFixed(2)}</span>
+            </div>
+            <div class="d-flex justify-content-between mb-2">
+                <span>Tax (18%):</span>
+                <span>₹${tax.toFixed(2)}</span>
+            </div>
+            <hr>
+            <div class="d-flex justify-content-between cart-summary-total">
+                <strong>Total:</strong>
+                <strong>₹${finalTotal.toFixed(2)}</strong>
+            </div>
+        </div>
+    `);
+    
+    $(".checkout-btn").attr('disabled', false);
 }
 
 //delete item 
@@ -101,8 +212,37 @@ function deleteItemFromCart(pid)
     showToast("Item is removed from cart ")
 }
 
+// Increase quantity of an item in cart
+function increaseQuantity(pid) {
+    let cart = JSON.parse(localStorage.getItem('cart'));
+    let item = cart.find(item => item.productId === pid);
+    if (item) {
+        item.productQuantity += 1;
+        localStorage.setItem('cart', JSON.stringify(cart));
+        updateCart();
+        showToast("Quantity increased");
+    }
+}
+
+// Decrease quantity of an item in cart
+function decreaseQuantity(pid) {
+    let cart = JSON.parse(localStorage.getItem('cart'));
+    let item = cart.find(item => item.productId === pid);
+    if (item) {
+        if (item.productQuantity > 1) {
+            item.productQuantity -= 1;
+            localStorage.setItem('cart', JSON.stringify(cart));
+            updateCart();
+            showToast("Quantity decreased");
+        } else {
+            deleteItemFromCart(pid);
+        }
+    }
+}
+
 $(document).ready(function () {
     updateCart()
+    updateAddToCartButtons()
 })
 
 function showToast(content) {
@@ -115,4 +255,103 @@ function showToast(content) {
 
 function goToCheckout() {
     window.location = "checkout.jsp"
+}
+
+// Function to show quantity controls and hide Add to Cart button
+function showQuantityControls(productId) {
+    document.getElementById('quantity-controls-' + productId).classList.remove('d-none');
+    document.getElementById('add-to-cart-' + productId).classList.add('d-none');
+}
+
+// Quantity control functions
+function decrementQuantity(productId) {
+    const input = document.getElementById('quantity-' + productId);
+    const currentValue = parseInt(input.value);
+    if (currentValue > 1) {
+        input.value = currentValue - 1;
+    }
+}
+
+function incrementQuantity(productId, maxQuantity) {
+    const input = document.getElementById('quantity-' + productId);
+    const currentValue = parseInt(input.value);
+    if (currentValue < parseInt(maxQuantity)) {
+        input.value = currentValue + 1;
+    }
+}
+
+function validateQuantity(productId, maxQuantity) {
+    const input = document.getElementById('quantity-' + productId);
+    let value = parseInt(input.value);
+    maxQuantity = parseInt(maxQuantity);
+    
+    if (isNaN(value) || value < 1) {
+        value = 1;
+    } else if (value > maxQuantity) {
+        value = maxQuantity;
+    }
+    
+    input.value = value;
+}
+
+// Function to add to cart with selected quantity
+function confirmAddToCart(pid, pname, price) {
+    const quantity = parseInt(document.getElementById('quantity-' + pid).value);
+    
+    // Convert price to number if it's a string
+    const numericPrice = typeof price === 'string' ? parseFloat(price) : price;
+    
+    if (isNaN(numericPrice)) {
+        showToast("Invalid price value");
+        return;
+    }
+
+    let cart = localStorage.getItem("cart");
+    if (cart == null) {
+        //no cart yet  
+        let products = [];
+        let product = {
+            productId: parseInt(pid),
+            productName: pname,
+            productQuantity: quantity,
+            productPrice: numericPrice
+        }
+        products.push(product);
+        localStorage.setItem("cart", JSON.stringify(products));
+        showToast(`Added ${quantity} ${quantity === 1 ? 'item' : 'items'} to cart`);
+    } else {
+        //cart is already present
+        let pcart = JSON.parse(cart);
+        let oldProduct = pcart.find((item) => item.productId == pid)
+        if (oldProduct) {
+            //update quantity
+            oldProduct.productQuantity = quantity;
+            pcart.map((item) => {
+                if (item.productId === oldProduct.productId) {
+                    item.productQuantity = quantity;
+                }
+            })
+            localStorage.setItem("cart", JSON.stringify(pcart));
+            showToast(`Updated quantity to ${quantity}`);
+        } else {
+            //add new product
+            let product = {
+                productId: parseInt(pid),
+                productName: pname,
+                productQuantity: quantity,
+                productPrice: numericPrice
+            }
+            pcart.push(product)
+            localStorage.setItem("cart", JSON.stringify(pcart));
+            showToast(`Added ${quantity} ${quantity === 1 ? 'item' : 'items'} to cart`);
+        }
+    }
+    
+    // Hide quantity controls and show Add to Cart button
+    document.getElementById('quantity-controls-' + pid).classList.add('d-none');
+    document.getElementById('add-to-cart-' + pid).classList.remove('d-none');
+    
+    // Update cart display
+    updateCart();
+    updateAddToCartButtons();
 }

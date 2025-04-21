@@ -106,9 +106,14 @@ public class Product {
     }
 
     //calculate price after discount
-    public int getPriceAfterApplyingDiscount() {
-        int d = (int) ((this.getpDiscount() / 100.0) * this.getpPrice());
-        return this.getpPrice() - d;
+    public double getPriceAfterApplyingDiscount() {
+        double discountAmount = (this.getpDiscount() / 100.0) * this.getpPrice();
+        return Math.round((this.getpPrice() - discountAmount) * 100.0) / 100.0;
+    }
+
+    // Get formatted price for display
+    public String getFormattedPrice() {
+        return String.format("%.2f", this.getPriceAfterApplyingDiscount());
     }
 
 }
